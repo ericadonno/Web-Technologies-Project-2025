@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Lista Iscritti</title>
+</head>
+<body>
+	<h1>Elenco Iscritti</h1>
+
+	<table border="1">
+		<thead>
+			<tr>
+				<th>Matricola</th>
+				<th>Cognome</th>
+				<th>Nome</th>
+				<th>Email</th>
+				<th>Laurea</th>
+				<th>Voto</th>
+				<th>Stato Valutazione</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="iscritti : ${iscritti}">
+				<td th:text="${iscritti.matricola}">123456</td>
+				<td th:text="${iscritti.cognome}">Rossi</td>
+				<td th:text="${iscritti.nome}">Mario</td>
+				<td th:text="${iscritti.email}">mario.rossi@email.it</td>
+				<td th:text="${iscritti.corsolaurea}">Ingegneria Informatica</td>
+				<td th:text="${iscritti.voto}">28</td>
+				<td th:text="${iscritti.statodivalutazione}">Approvato</td>
+				<td th:if="${iscritti.statodivalutazione.name() != 'PUBBLICATO' and iscritti.statodivalutazione.name() != 'RIFIUTATO' and iscritti.statodivalutazione.name() != 'VERBALIZZATO'}"><a
+					th:href="@{'/ModificaStudente?studenteId=' + ${iscritti.id} + '&appId=' + ${iscritti.idapp}}">
+						<button>MODIFICA</button>
+				</a></td>
+				
+			</tr>
+		</tbody>
+
+	</table>
+	<form th:action="@{'/Iscritti?appId=' + ${iscritti[0].idapp}}"
+		method="post">
+		<button type="submit">PUBBLICA</button>
+
+	</form>
+	<form th:action="@{'/PaginaVerbale?appId=' + ${iscritti[0].idapp}}"
+		method="post">
+		<button type="submit">VERBALIZZA</button>
+
+	</form>
+	
+
+
+</body>
+</html>
