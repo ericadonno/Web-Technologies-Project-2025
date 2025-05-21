@@ -20,8 +20,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
-
 @WebServlet("/CheckLogin")
 //@MultipartConfig
 public class CheckLogin extends HttpServlet {
@@ -37,27 +35,28 @@ public class CheckLogin extends HttpServlet {
 		this.connection = ConnectionHandler.getConnection(getServletContext());
 		ServletContext servletContext = getServletContext();
 
-		  JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);    
-		  WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
+		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
 
-		  templateResolver.setTemplateMode(TemplateMode.HTML);
-		  this.templateEngine = new TemplateEngine();
-		  this.templateEngine.setTemplateResolver(templateResolver);
-		  templateResolver.setSuffix(".html");
+		templateResolver.setTemplateMode(TemplateMode.HTML);
+		this.templateEngine = new TemplateEngine();
+		this.templateEngine.setTemplateResolver(templateResolver);
+		templateResolver.setSuffix(".html");
 
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) //TODO qui è una get
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) // TODO qui è una get
 			throws ServletException, IOException {
 		// obtain and escape params
 		String usrn = null;
 		String pwd = null;
 		usrn = request.getParameter("username");
 		pwd = request.getParameter("pwd");
-		if (usrn == null || pwd == null || usrn.isEmpty() || pwd.isEmpty() ) {
+		if (usrn == null || pwd == null || usrn.isEmpty() || pwd.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().println("Incorrect credentials");
-			//request.getSession().setAttribute("error_message","Credentials must be not null");
+			// request.getSession().setAttribute("error_message","Credentials must be not
+			// null");
 			return;
 		}
 		// query db to authenticate for user
@@ -66,9 +65,11 @@ public class CheckLogin extends HttpServlet {
 		try {
 			user = userDao.checkCredentials(usrn, pwd);
 		} catch (SQLException e) {
+			e.printStackTrace(); // <--- add this
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			request.getSession().setAttribute("error_message","Internal server error, retry later");
+			request.getSession().setAttribute("error_message", "Internal server error, retry later");
 			return;
+
 		}
 
 		// If the user exists, add info to the session and go to home page, otherwise
@@ -76,25 +77,24 @@ public class CheckLogin extends HttpServlet {
 		if (user == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-			//request.getSession().setAttribute("error_message","Incorrect credentials");
+			// request.getSession().setAttribute("error_message","Incorrect credentials");
 			response.sendRedirect("loginPage.html");
-		} else if(user.getRole().equals("studente")) {
+		} else if (user.getRole().equals("studente")) {
 			request.getSession().setAttribute("user", user);
 			response.setStatus(HttpServletResponse.SC_OK);
-			//response.setContentType("application/json");
+			// response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			//response.sendRedirect("studenteHomePage.html");
+			// response.sendRedirect("studenteHomePage.html");
 			response.sendRedirect(getServletContext().getContextPath() + "/StudenteHomePage");
-		}
-		else if(user.getRole().equals("docente")){
+		} else if (user.getRole().equals("docente")) {
 			request.getSession().setAttribute("user", user);
 			response.setStatus(HttpServletResponse.SC_OK);
-			//response.setContentType("application/json");
+			// response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			//response.sendRedirect("docenteHomePage.html");
+			// response.sendRedirect("docenteHomePage.html");
 			response.sendRedirect(getServletContext().getContextPath() + "/DocenteHomePage");
 		}
-	
+
 	}
 
 	public void destroy() {

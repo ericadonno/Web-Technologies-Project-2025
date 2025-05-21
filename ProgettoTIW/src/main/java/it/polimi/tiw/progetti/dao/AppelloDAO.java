@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import it.polimi.tiw.progetti.beans.InfoIscritti;
 import it.polimi.tiw.progetti.beans.Statodivalutazione;
@@ -23,8 +24,17 @@ public class AppelloDAO {
 	}
 	
 	//trovare gli iscritti all'appello e dire matricola, nome, cognome, mail, corso, voto, stato
-	public List<InfoIscritti> cercaAppelli() throws SQLException {
+	public List<InfoIscritti> cercaAppelli(String orderBy, String orderDirection) throws SQLException {
 		List<InfoIscritti> infoIscrtittiList = new ArrayList<InfoIscritti>();
+		Set<String> allowedOrderBy = Set.of("matricola","nome","cognome","email","corsolaurea","voto","statodivalutazione");
+		Set<String> allowedDirections = Set.of("ASC","DESC");
+		if (orderBy == null || !allowedOrderBy.contains(orderBy)) {
+			orderBy = "cognome"; // default column
+		}
+		if (orderDirection == null || !allowedDirections.contains(orderDirection.toUpperCase())) {
+			orderDirection = "ASC"; // default direction
+		}
+		
 		String query = "SELECT "
 				+ "s.id, "
 				+ "s.matricola, "
@@ -41,7 +51,8 @@ public class AppelloDAO {
 				+ "JOIN "
 				+ "user AS s ON e.idstudente = s.id "
 				+ "WHERE "
-				+ "a.idapp = ?;";
+				+ "a.idapp = ? "
+				+ "ORDER BY " + orderBy + " " + orderDirection;
 		try (PreparedStatement pstatement = con.prepareStatement(query);) {
 			pstatement.setInt(1, this.idapp);
 			try (ResultSet result = pstatement.executeQuery();) {
