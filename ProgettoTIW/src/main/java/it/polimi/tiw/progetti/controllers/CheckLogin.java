@@ -5,8 +5,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
+import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.progetti.beans.User;
@@ -55,8 +57,7 @@ public class CheckLogin extends HttpServlet {
 		if (usrn == null || pwd == null || usrn.isEmpty() || pwd.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().println("Incorrect credentials");
-			// request.getSession().setAttribute("error_message","Credentials must be not
-			// null");
+			request.getSession().setAttribute("error_message","Credentials must be not null");
 			return;
 		}
 		// query db to authenticate for user
@@ -67,7 +68,13 @@ public class CheckLogin extends HttpServlet {
 		} catch (SQLException e) {
 			e.printStackTrace(); // <--- add this
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			request.getSession().setAttribute("error_message", "Internal server error, retry later");
+			//request.getSession().setAttribute("error_message", "Internal server error, retry later");
+			JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
+			IWebExchange webExchange = application.buildExchange(request, response);
+			WebContext ctx = new WebContext(webExchange, request.getLocale());
+			ctx.setVariable("error_message", "Incorrect credentials");
+		    templateEngine.process("loginPage.html", ctx, response.getWriter());
+
 			return;
 
 		}
@@ -76,9 +83,13 @@ public class CheckLogin extends HttpServlet {
 		// return an error status code and message
 		if (user == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
+			IWebExchange webExchange = application.buildExchange(request, response);
+			WebContext ctx = new WebContext(webExchange, request.getLocale());
+			ctx.setVariable("error_message", "Incorrect Credentials");
+		    templateEngine.process("loginPage.html", ctx, response.getWriter());
 
 			// request.getSession().setAttribute("error_message","Incorrect credentials");
-			response.sendRedirect("loginPage.html");
 		} else if (user.getRole().equals("studente")) {
 			request.getSession().setAttribute("user", user);
 			response.setStatus(HttpServletResponse.SC_OK);
