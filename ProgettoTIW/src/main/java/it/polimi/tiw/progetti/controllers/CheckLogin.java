@@ -56,8 +56,8 @@ public class CheckLogin extends HttpServlet {
 		pwd = request.getParameter("pwd");
 		if (usrn == null || pwd == null || usrn.isEmpty() || pwd.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Incorrect credentials");
-			request.getSession().setAttribute("error_message","Credentials must be not null");
+			response.getWriter().println("Crendenziali errate");
+			request.getSession().setAttribute("error_message","Le credenziali non possono essere vuote");
 			return;
 		}
 		// query db to authenticate for user
@@ -72,7 +72,7 @@ public class CheckLogin extends HttpServlet {
 			JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 			IWebExchange webExchange = application.buildExchange(request, response);
 			WebContext ctx = new WebContext(webExchange, request.getLocale());
-			ctx.setVariable("error_message", "Incorrect credentials");
+			ctx.setVariable("error_message", "Credenziali errate");
 		    templateEngine.process("loginPage.html", ctx, response.getWriter());
 
 			return;
@@ -86,7 +86,7 @@ public class CheckLogin extends HttpServlet {
 			JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 			IWebExchange webExchange = application.buildExchange(request, response);
 			WebContext ctx = new WebContext(webExchange, request.getLocale());
-			ctx.setVariable("error_message", "Incorrect Credentials");
+			ctx.setVariable("error_message", "Credenziali errate");
 		    templateEngine.process("loginPage.html", ctx, response.getWriter());
 
 			// request.getSession().setAttribute("error_message","Incorrect credentials");

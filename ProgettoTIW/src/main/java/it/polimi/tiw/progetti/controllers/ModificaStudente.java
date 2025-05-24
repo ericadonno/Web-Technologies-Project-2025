@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Set;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -75,15 +76,18 @@ public class ModificaStudente extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Impossibile recuperare i dati di questo studente per questo appello");
 			return;
 		}
+		String errorMsg = (String) request.getSession().getAttribute("error_message");
+		if (errorMsg != null) {
+		    ctx.setVariable("error_message", errorMsg);
+		    request.getSession().removeAttribute("error_message");
+		}
 		
             
 	
 	    templateEngine.process("/WEB-INF/modificaStudente.html", ctx, response.getWriter());
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String studenteIdParam = request.getParameter("studenteId");
 		int studenteid = Integer.parseInt(studenteIdParam);
@@ -91,8 +95,17 @@ public class ModificaStudente extends HttpServlet {
 		int appid = Integer.parseInt(appelloIdParam);
 		 String voto = request.getParameter("voto");
 		StudenteDAO studenteDAO = new StudenteDAO(connection, studenteid);
+		Set<String> votiValidi = Set.of(
+			    "18", "19", "20", "21", "22", "23", "24", "25", "26", "27",
+			    "28", "29", "30", "30L", "1", "2", "3", "4", "5", "6", "7",
+			    "8", "9", "10", "11", "12", "13", "14", "15", "16", "17"
+			);
 				
-
+		if(!votiValidi.contains(voto)) {
+			request.getSession().setAttribute("error_message", "Voto non accettato, riprova");
+			response.sendRedirect(getServletContext().getContextPath() + "/ModificaStudente?studenteId=" + studenteid + "&appId="+appid);
+			return;
+		}
 		
 		try {
 			studenteDAO.aggiornaVotoEStato(appid, voto);
@@ -100,6 +113,11 @@ public class ModificaStudente extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Impossibile modificare il voto");
 			return;
 		}
+		
+		JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
+		IWebExchange webExchange = application.buildExchange(request, response);
+		WebContext ctx = new WebContext(webExchange, request.getLocale());
+		ctx.setVariable("error_message", "Incorrect credentials");
 		
 		response.sendRedirect(getServletContext().getContextPath() + "/Iscritti?appId=" + appid);
 

@@ -14,14 +14,7 @@ h1, h2, h3 {
 }
 
 /* Form stile */
-form {
-  background-color: white;
-  padding: 20px;
-  max-width: 400px;
-  margin: 0 auto;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+
 
 fieldset {
   border: none;
@@ -30,7 +23,7 @@ fieldset {
 
 input[type="text"],
 input[type="password"] {
-  width: 100%;
+  width: 25%;
   padding: 8px;
   margin: 8px 0 16px 0;
   border: 1px solid #ccc;
@@ -44,6 +37,20 @@ input[type="submit"] {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+button {
+  background-color: #1565c0;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  margin: 4px; 
+}
+
+button:hover {
+  background-color: #0d47a1;
 }
 
 input[type="submit"]:hover {
