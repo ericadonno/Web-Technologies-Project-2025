@@ -7,6 +7,11 @@
 
 </head>
 <body>
+	<form th:action="@{/Logout}" method="post"
+		style="position: fixed; top: 20px; right: 20px;">
+		<button type="submit" style="background-color: red;">Logout</button>
+	</form>
+
 	<h1>Docente HomePage</h1>
 	<p>
 		Benvenuto, <strong th:text="${username}">Nome Docente</strong>!
@@ -42,8 +47,7 @@
 			</tr>
 		</tbody>
 	</table>
-	<form th:action="@{ElencoVerbali}"
-		method="get">
+	<form th:action="@{ElencoVerbali}" method="get">
 		<button type="submit">VERBALI</button>
 
 	</form>

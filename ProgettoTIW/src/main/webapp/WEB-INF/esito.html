@@ -8,6 +8,10 @@
 
 </head>
 <body>
+	<form th:action="@{/Logout}" method="post"
+		style="position: fixed; top: 20px; right: 20px;">
+		<button type="submit" style="background-color: red;">Logout</button>
+	</form>
 	<h1>Esito</h1>
 
 	<div
@@ -53,7 +57,8 @@
 	<form
 		th:action="@{'/Esito?appelloId=' + ${infostud.idapp}  + '&corsoId=' + ${infostud.idcorso}}"
 		method="post">
-		<div th:if="${infostud.statodivalutazione.name() == 'PUBBLICATO' or infostud.statodivalutazione.name() == 'VERBALIZZATO'}">
+		<div
+			th:if="${infostud.statodivalutazione.name() == 'PUBBLICATO' or infostud.statodivalutazione.name() == 'VERBALIZZATO'}">
 
 
 			<p>

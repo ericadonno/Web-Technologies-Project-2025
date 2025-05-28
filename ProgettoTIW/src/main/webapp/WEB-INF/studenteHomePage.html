@@ -8,41 +8,46 @@
 
 </head>
 <body>
+	<form th:action="@{/Logout}" method="post"
+		style="position: fixed; top: 20px; right: 20px;">
+		<button type="submit" style="background-color: red;">Logout</button>
+	</form>
 	<h1>Studente HomePage</h1>
-	<p>Benvenuto, <strong th:text="${username}">Nome Studente</strong>!</p>
-    <h2>Lista Corsi</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Corsi</th>
-            </tr>
-        </thead>
-        <tbody>
-           <tr th:each="corso : ${corso}">
-                <td>
-                    <a th:href="@{'/StudenteHomePage?corsoId=' + ${corso.idcorso}}"
-                       th:text="${corso.nomecorso}">Nome Corso</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    
-    
-    <h2>Appelli del Corso</h2>
-    <table border="1" th:if="${appelli != null and #lists.size(appelli) > 0}">
-        <thead>
-            <tr>
-                <th>Data Appello</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="appelli : ${appelli}">
-                <td>
-                <a th:href="@{'/Esito?appelloId=' + ${appelli.idapp}  + '&corsoId=' + ${appelli.idcorso}}"
-                   th:text="${appelli.data}">Data Appello</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+	<p>
+		Benvenuto, <strong th:text="${username}">Nome Studente</strong>!
+	</p>
+	<h2>Lista Corsi</h2>
+	<table border="1">
+		<thead>
+			<tr>
+				<th>Corsi</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="corso : ${corso}">
+				<td><a
+					th:href="@{'/StudenteHomePage?corsoId=' + ${corso.idcorso}}"
+					th:text="${corso.nomecorso}">Nome Corso</a></td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	<h2>Appelli del Corso</h2>
+	<table border="1"
+		th:if="${appelli != null and #lists.size(appelli) > 0}">
+		<thead>
+			<tr>
+				<th>Data Appello</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="appelli : ${appelli}">
+				<td><a
+					th:href="@{'/Esito?appelloId=' + ${appelli.idapp}  + '&corsoId=' + ${appelli.idcorso}}"
+					th:text="${appelli.data}">Data Appello</a></td>
+			</tr>
+		</tbody>
+	</table>
 </body>
 </html>

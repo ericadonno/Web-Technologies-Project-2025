@@ -6,10 +6,16 @@
 <title>Dettaglio Studente</title>
 </head>
 <body>
+	<form th:action="@{/Logout}" method="post"
+		style="position: fixed; top: 20px; right: 20px;">
+		<button type="submit" style="background-color: red;">Logout</button>
+	</form>
 	<h1>Dettaglio Studente</h1>
 
-	<form th:action="@{'/ModificaStudente?studenteId=' + ${iscritto.id} + '&appId=' + ${iscritto.idapp}}" method="post">
-		
+	<form
+		th:action="@{'/ModificaStudente?studenteId=' + ${iscritto.id} + '&appId=' + ${iscritto.idapp}}"
+		method="post">
+
 
 		<p>
 			<strong>Matricola:</strong> <span th:text="${iscritto.matricola}">123456</span>
@@ -38,7 +44,7 @@
 				th:text="${iscritto.statodivalutazione.label}">Pubblicato</span>
 		</p>
 		<button type="submit">Salva modifiche</button>
-		<p th:text = "${error_message}"></p>
+		<p th:text="${error_message}"></p>
 
 
 	</form>
