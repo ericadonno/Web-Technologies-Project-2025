@@ -15,7 +15,7 @@
 	<h1>Esito</h1>
 
 	<div
-		th:if="${infostud.statodivalutazione.name() != 'PUBBLICATO' and infostud.statodivalutazione.name() != 'RIFIUTATO'}">
+		th:if="${infostud.statodivalutazione.name() != 'PUBBLICATO' and infostud.statodivalutazione.name() != 'RIFIUTATO' and infostud.statodivalutazione.name() != 'VERBALIZZATO'}">
 		<p>
 			<strong>Voto non ancora definito</strong>
 		</p>
