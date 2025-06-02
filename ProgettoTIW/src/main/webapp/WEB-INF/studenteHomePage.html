@@ -33,21 +33,22 @@
 	</table>
 
 
-	<h2>Appelli del Corso</h2>
-	<table border="1"
-		th:if="${appelli != null and #lists.size(appelli) > 0}">
-		<thead>
-			<tr>
-				<th>Data Appello</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr th:each="appelli : ${appelli}">
-				<td><a
-					th:href="@{'/Esito?appelloId=' + ${appelli.idapp}  + '&corsoId=' + ${appelli.idcorso}}"
-					th:text="${appelli.data}">Data Appello</a></td>
-			</tr>
-		</tbody>
-	</table>
+	<div th:if="${appelli != null}">
+		<h2>Appelli del Corso</h2>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>Data Appello</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="appelli : ${appelli}">
+					<td><a
+						th:href="@{'/Esito?appelloId=' + ${appelli.idapp}  + '&corsoId=' + ${appelli.idcorso}}"
+						th:text="${appelli.data}">Data Appello</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </body>
 </html>
