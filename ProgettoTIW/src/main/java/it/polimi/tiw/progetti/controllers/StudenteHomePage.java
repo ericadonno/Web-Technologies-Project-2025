@@ -33,55 +33,62 @@ public class StudenteHomePage extends HttpServlet {
 	private Connection connection = null;
 	private TemplateEngine templateEngine;
 
-    public StudenteHomePage() {
-        super();
-    }
-    
-    public void init() throws ServletException {
-    	this.connection = ConnectionHandler.getConnection(getServletContext());
-		ServletContext servletContext = getServletContext();
-
-		  JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);    
-		  WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
-
-		  templateResolver.setTemplateMode(TemplateMode.HTML);
-		  this.templateEngine = new TemplateEngine();
-		  this.templateEngine.setTemplateResolver(templateResolver);
-		  templateResolver.setSuffix(".html");
-		
+	public StudenteHomePage() {
+		super();
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void init() throws ServletException {
+		this.connection = ConnectionHandler.getConnection(getServletContext());
+		ServletContext servletContext = getServletContext();
+
+		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
+		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+
+		templateResolver.setTemplateMode(TemplateMode.HTML);
+		this.templateEngine = new TemplateEngine();
+		this.templateEngine.setTemplateResolver(templateResolver);
+		templateResolver.setSuffix(".html");
+
+	}
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		User user = (User) request.getSession().getAttribute("user");
 		StudenteDAO studenteDAO = new StudenteDAO(connection, user.getId());
-		
+
 		JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 		IWebExchange webExchange = application.buildExchange(request, response);
 		WebContext ctx = new WebContext(webExchange, request.getLocale());
 		ctx.setVariable("username", user.getUsername());
-		
-		try {
-		    List<Corso> corsi = studenteDAO.cercaCorsi();
-		    ctx.setVariable("corso", corsi);
-		    String corsoIdParam = request.getParameter("corsoId");
-            if (corsoIdParam != null) {
-                int corsoId = Integer.parseInt(corsoIdParam);
-                List<Appello> appelli = studenteDAO.cercaAppelliStudente(corsoId);
-                ctx.setVariable("appelli", appelli);
-            }
-		} catch (SQLException e) {
-		    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Impossibile recuperare gli appelli");
-		    return;
-		}
-	    templateEngine.process("/WEB-INF/studenteHomePage.html", ctx, response.getWriter());
 
-		
+		// carico la lista dei corsi relativi ad un certo studente
+		try {
+			List<Corso> corsi = studenteDAO.cercaCorsi();
+			ctx.setVariable("corso", corsi);
+			String corsoIdParam = request.getParameter("corsoId");
+			// carico la lista degli appelli relativi al corso selezionto
+			if (corsoIdParam != null) {
+				int corsoId = Integer.parseInt(corsoIdParam);
+				List<Appello> appelli = studenteDAO.cercaAppelliStudente(corsoId);
+				ctx.setVariable("appelli", appelli);
+			}
+		} catch (SQLException e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Impossibile recuperare gli appelli");
+			return;
+		} catch (NumberFormatException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro corsoId deve essere un intero valido");
+			return;
+		}
+		templateEngine.process("/WEB-INF/studenteHomePage.html", ctx, response.getWriter());
+
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}

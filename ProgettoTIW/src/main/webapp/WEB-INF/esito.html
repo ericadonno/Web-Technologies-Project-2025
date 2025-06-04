@@ -55,7 +55,7 @@
 
 	</div>
 	<form
-		th:action="@{'/Esito?appelloId=' + ${infostud.idapp}  + '&corsoId=' + ${infostud.idcorso}}"
+		th:action="@{'/Esito?appelloId=' + ${infostud.idapp} }"
 		method="post">
 		<div
 			th:if="${infostud.statodivalutazione.name() == 'PUBBLICATO' or infostud.statodivalutazione.name() == 'VERBALIZZATO'}">

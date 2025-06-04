@@ -44,7 +44,7 @@
 			<tbody>
 				<tr th:each="appelli : ${appelli}">
 					<td><a
-						th:href="@{'/Esito?appelloId=' + ${appelli.idapp}  + '&corsoId=' + ${appelli.idcorso}}"
+						th:href="@{'/Esito?appelloId=' + ${appelli.idapp}  }"
 						th:text="${appelli.data}">Data Appello</a></td>
 				</tr>
 			</tbody>

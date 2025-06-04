@@ -51,7 +51,6 @@ public class StudenteChecker extends HttpFilter implements Filter {
 	        return;
 	    }
 		User u = null;
-        // check if the client is a worker
 		u = (User) s.getAttribute("user");
 		if(u==null) {
 			System.out.print("StudenteUser è vuoto\n");
@@ -66,7 +65,6 @@ public class StudenteChecker extends HttpFilter implements Filter {
 			return;
 		}
 
-		// pass the request along the filter chain
 		chain.doFilter(request, response);
 	}
 

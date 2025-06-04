@@ -54,27 +54,27 @@ public class Iscritti extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// User user = (User) request.getSession().getAttribute("user");
-		String appelloIdParam = request.getParameter("appId");
-		int appId = Integer.parseInt(appelloIdParam);
-
-		String orderBy = request.getParameter("orderBy");
-		String orderDirection = request.getParameter("orderDirection");
-
-		if (orderDirection != null && orderDirection.equalsIgnoreCase("ASC")) {
-			orderDirection = "ASC";
-		} else {
-			orderDirection = "DESC";
-		}
-
-		AppelloDAO appelloDAO = new AppelloDAO(connection, appId);
-
 		JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 		IWebExchange webExchange = application.buildExchange(request, response);
 		WebContext ctx = new WebContext(webExchange, request.getLocale());
-		// ctx.setVariable("username", user.getUsername());
-
 		try {
+			String appelloIdParam = request.getParameter("appId");
+			int appId = Integer.parseInt(appelloIdParam);
+
+			// parametri utilizzati per il riordino degli elementi nelle colonne della
+			// tabella iscritti
+			String orderBy = request.getParameter("orderBy");
+			String orderDirection = request.getParameter("orderDirection");
+
+			if (orderDirection != null && orderDirection.equalsIgnoreCase("ASC")) {
+				orderDirection = "ASC";
+			} else {
+				orderDirection = "DESC";
+			}
+
+			AppelloDAO appelloDAO = new AppelloDAO(connection, appId);
+
+			// carico gli iscritti all'appello
 
 			List<InfoIscritti> iscritti = appelloDAO.cercaAppelli(orderBy, orderDirection);
 			ctx.setVariable("iscritti", iscritti);
@@ -85,20 +85,29 @@ public class Iscritti extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"Impossibile recuperare gli iscritti a questo appello");
 			return;
+		} catch (NumberFormatException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro appid deve essere un intero valido");
+			return;
 		}
 		templateEngine.process("/WEB-INF/iscritti.html", ctx, response.getWriter());
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String appelloIdParam = request.getParameter("appId");
-		int appId = Integer.parseInt(appelloIdParam);
-		AppelloDAO appelloDAO = new AppelloDAO(connection, appId);
-
 		try {
+			String appelloIdParam = request.getParameter("appId");
+			int appId = Integer.parseInt(appelloIdParam);
+			AppelloDAO appelloDAO = new AppelloDAO(connection, appId);
+
+			// aggiorno nel database lo stato di valutazione a pubblicato per tutti gli
+			// inseriti
+
 			appelloDAO.aggiornaPubblicati();
 		} catch (SQLException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Impossibile pubblicare i voti");
+			return;
+		} catch (NumberFormatException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro appid deve essere un intero valido");
 			return;
 		}
 

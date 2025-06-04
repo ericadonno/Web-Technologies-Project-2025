@@ -59,6 +59,7 @@ public class ElencoVerbali extends HttpServlet {
 		IWebExchange webExchange = application.buildExchange(request, response);
 		WebContext ctx = new WebContext(webExchange, request.getLocale());
 		
+		//carica la lista dei verbali
 		try {
 			List<InfoVerbaleDocente> infoVerbale = docenteDAO.cercaVerbale();
 			ctx.setVariable("infoverbale", infoVerbale);

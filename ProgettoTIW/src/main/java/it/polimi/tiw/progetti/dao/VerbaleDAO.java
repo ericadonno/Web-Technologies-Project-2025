@@ -22,6 +22,7 @@ public class VerbaleDAO {
 		this.idapp = idapp;
 	}
 	
+	//cerco id degli studenti pubblicati o rifiutati
 	public List<Integer> cercaIdStudentiPubbORif() throws SQLException{
 		List<Integer> idList = new ArrayList<Integer>();
 		String query = "SELECT u.id "
@@ -42,6 +43,7 @@ public class VerbaleDAO {
 		
 	}
 	
+	//riceve una lista di id degli studenti e seleziona le informazioni per ognuno di essi
 	public List<InfoIscritti> infoStudentiAggiornati(int appId, List<Integer> studentIds) throws SQLException {
 	    if (studentIds == null || studentIds.isEmpty()) return new ArrayList<>();
 
@@ -53,7 +55,8 @@ public class VerbaleDAO {
 	    try (PreparedStatement pstm = con.prepareStatement(query)) {
 	        pstm.setInt(1, appId);
 	        for (int i = 0; i < studentIds.size(); i++) {
-	            pstm.setInt(i + 2, studentIds.get(i)); // +2 because appId is 1-based index
+	            pstm.setInt(i + 2, studentIds.get(i));
+	            //+2 perchè il primo parametro è relativo ad appid
 	        }
 
 	        try (ResultSet rs = pstm.executeQuery()) {
@@ -73,6 +76,8 @@ public class VerbaleDAO {
 	    }
 	}
 	
+	//nel caso lo stato di valutazione è pubblicato o rifiutato, allora il voto viene verbalizzato
+	//nel caso il voto è stato rifiutato, allora il voto diventa rimandato
 	public void aggiornaverbalizzato() throws SQLException{
 		String query = "UPDATE esame "
 				+ "SET "
@@ -91,6 +96,7 @@ public class VerbaleDAO {
 		}
 	}
 	
+	//creo un nuovo verbale con id autoincrementato
 	public void creaverbale() throws SQLException{
 		String query = "INSERT INTO verbale (data, ora, idapp) "
 				+ "VALUES (CURRENT_DATE(), CURRENT_TIME(), ?);";
@@ -100,6 +106,7 @@ public class VerbaleDAO {
 		}
 	}
 	
+	//seleziono i dati dell'ultimo verbale creato
 	public Verbale idVerb() throws SQLException{
 		Verbale verbale = new Verbale();
 		String query = "SELECT v.idverb, v.data AS verbale_data, v.ora, a.idapp, a.data AS appello_data "

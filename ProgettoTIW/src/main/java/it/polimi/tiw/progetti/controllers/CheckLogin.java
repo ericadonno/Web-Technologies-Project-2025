@@ -47,28 +47,27 @@ public class CheckLogin extends HttpServlet {
 
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) // TODO qui è una get
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
-		// obtain and escape params
 		String usrn = null;
 		String pwd = null;
 		usrn = request.getParameter("username");
 		pwd = request.getParameter("pwd");
+		//controllo validità parametri
 		if (usrn == null || pwd == null || usrn.isEmpty() || pwd.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().println("Crendenziali errate");
 			request.getSession().setAttribute("error_message","Le credenziali non possono essere vuote");
 			return;
 		}
-		// query db to authenticate for user
+		//controllo la presenza delle credenziali nel database
 		UserDAO userDao = new UserDAO(connection);
 		User user = null;
 		try {
 			user = userDao.checkCredentials(usrn, pwd);
 		} catch (SQLException e) {
-			e.printStackTrace(); // <--- add this
+			e.printStackTrace(); 
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			//request.getSession().setAttribute("error_message", "Internal server error, retry later");
 			JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 			IWebExchange webExchange = application.buildExchange(request, response);
 			WebContext ctx = new WebContext(webExchange, request.getLocale());
@@ -76,11 +75,9 @@ public class CheckLogin extends HttpServlet {
 		    templateEngine.process("loginPage.html", ctx, response.getWriter());
 
 			return;
-
 		}
 
-		// If the user exists, add info to the session and go to home page, otherwise
-		// return an error status code and message
+		//utente non presente nel database
 		if (user == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
@@ -88,21 +85,15 @@ public class CheckLogin extends HttpServlet {
 			WebContext ctx = new WebContext(webExchange, request.getLocale());
 			ctx.setVariable("error_message", "Credenziali errate");
 		    templateEngine.process("loginPage.html", ctx, response.getWriter());
-
-			// request.getSession().setAttribute("error_message","Incorrect credentials");
 		} else if (user.getRole().equals("studente")) {
 			request.getSession().setAttribute("user", user);
 			response.setStatus(HttpServletResponse.SC_OK);
-			// response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			// response.sendRedirect("studenteHomePage.html");
 			response.sendRedirect(getServletContext().getContextPath() + "/StudenteHomePage");
 		} else if (user.getRole().equals("docente")) {
 			request.getSession().setAttribute("user", user);
 			response.setStatus(HttpServletResponse.SC_OK);
-			// response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			// response.sendRedirect("docenteHomePage.html");
 			response.sendRedirect(getServletContext().getContextPath() + "/DocenteHomePage");
 		}
 

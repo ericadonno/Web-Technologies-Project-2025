@@ -18,7 +18,6 @@ import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-
 import it.polimi.tiw.progetti.beans.InfoIscritti;
 import it.polimi.tiw.progetti.beans.InfoStudenteAppello;
 import it.polimi.tiw.progetti.beans.User;
@@ -34,71 +33,69 @@ public class Esito extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
 	private TemplateEngine templateEngine;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Esito() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-    
-    public void init() throws ServletException {
-    	this.connection = ConnectionHandler.getConnection(getServletContext());
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public Esito() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public void init() throws ServletException {
+		this.connection = ConnectionHandler.getConnection(getServletContext());
 		ServletContext servletContext = getServletContext();
 
-		  JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);    
-		  WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
+		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
 
-		  templateResolver.setTemplateMode(TemplateMode.HTML);
-		  this.templateEngine = new TemplateEngine();
-		  this.templateEngine.setTemplateResolver(templateResolver);
-		  templateResolver.setSuffix(".html");
-    }
-		
-	
+		templateResolver.setTemplateMode(TemplateMode.HTML);
+		this.templateEngine = new TemplateEngine();
+		this.templateEngine.setTemplateResolver(templateResolver);
+		templateResolver.setSuffix(".html");
+	}
 
-
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		User user = (User) request.getSession().getAttribute("user");
-		String appelloIdParam = request.getParameter("appelloId");
-		int appelloId = Integer.parseInt(appelloIdParam);
-		String corsoIdParam = request.getParameter("corsoId");
-		int corsoId = Integer.parseInt(appelloIdParam);
-		StudenteDAO studenteDAO = new StudenteDAO(connection,user.getId());
-		
 		JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 		IWebExchange webExchange = application.buildExchange(request, response);
 		WebContext ctx = new WebContext(webExchange, request.getLocale());
-
 		try {
+			String appelloIdParam = request.getParameter("appelloId");
+			int appelloId = Integer.parseInt(appelloIdParam);
+			StudenteDAO studenteDAO = new StudenteDAO(connection, user.getId());
+
+			// carico informazioni riguardanti l'same dello studente
+
 			InfoStudenteAppello infostud = studenteDAO.cercoInfoStudentePubblicatoperAppello(appelloId);
 			ctx.setVariable("infostud", infostud);
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Impossibile recuperare l'esito per questo appello");
-		    return;
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+					"Impossibile recuperare l'esito per questo appello");
+			return;
+
+		} catch (NumberFormatException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro appid deve essere un intero valido");
+			return;
 		}
 
-		
-	
-		
-		
-	    templateEngine.process("/WEB-INF/esito.html", ctx, response.getWriter());
+		templateEngine.process("/WEB-INF/esito.html", ctx, response.getWriter());
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		User user = (User) request.getSession().getAttribute("user");
 		String appelloIdParam = request.getParameter("appelloId");
 		int appelloId = Integer.parseInt(appelloIdParam);
-		String corsoIdParam = request.getParameter("corsoId");
-		int corsoId = Integer.parseInt(appelloIdParam);
-		StudenteDAO studenteDAO = new StudenteDAO(connection,user.getId());
-		
-		
-		
+
+		StudenteDAO studenteDAO = new StudenteDAO(connection, user.getId());
+
+		// aggiorno lo stato di valutazione nel database ponendolo a rifiutato
 		try {
 			studenteDAO.aggiornaRifiutato(appelloId);
 		} catch (SQLException e) {
