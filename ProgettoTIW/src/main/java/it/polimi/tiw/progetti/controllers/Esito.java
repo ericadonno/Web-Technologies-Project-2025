@@ -65,6 +65,11 @@ public class Esito extends HttpServlet {
 			String appelloIdParam = request.getParameter("appelloId");
 			int appelloId = Integer.parseInt(appelloIdParam);
 			StudenteDAO studenteDAO = new StudenteDAO(connection, user.getId());
+			List<Integer> studenti = studenteDAO.cercaIdStudentiPerAppello(appelloId);
+			if (!studenti.contains(user.getId())) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Lo studente non ha dato questo appello");
+				return;
+			}
 
 			// carico informazioni riguardanti l'same dello studente
 

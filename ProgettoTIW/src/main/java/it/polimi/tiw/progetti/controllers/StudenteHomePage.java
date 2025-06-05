@@ -69,6 +69,11 @@ public class StudenteHomePage extends HttpServlet {
 			// carico la lista degli appelli relativi al corso selezionto
 			if (corsoIdParam != null) {
 				int corsoId = Integer.parseInt(corsoIdParam);
+				List<Integer> studenti = studenteDAO.cercaIdStudentiPerCorso(corsoId);
+				if (!studenti.contains(user.getId())) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Non sei iscritto a questo corso");
+					return;
+				}
 				List<Appello> appelli = studenteDAO.cercaAppelliStudente(corsoId);
 				ctx.setVariable("appelli", appelli);
 			}

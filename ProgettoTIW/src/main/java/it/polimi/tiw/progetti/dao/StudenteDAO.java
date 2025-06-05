@@ -138,6 +138,22 @@ public class StudenteDAO {
 		return studentiIds;
 	}
 	
+	// cerca id degli studenti iscritti ad un corso
+	public List<Integer> cercaIdStudentiPerCorso(int idcorso) throws SQLException {
+		String query = "SELECT idstudente " + "FROM iscrittocorso " + "WHERE idcorso = ?;";
+		List<Integer> studentiIds = new ArrayList<>();
+		try (PreparedStatement pstatement = con.prepareStatement(query);) {
+			pstatement.setInt(1, idcorso);
+			try (ResultSet result = pstatement.executeQuery()) {
+				while (result.next()) {
+					studentiIds.add(result.getInt("idstudente"));
+				}
+			}
+		}
+		return studentiIds;
+	}
+	
+	
 	
 
 	
