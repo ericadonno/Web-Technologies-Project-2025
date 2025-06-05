@@ -19,6 +19,7 @@ import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.progetti.beans.InfoIscritti;
+import it.polimi.tiw.progetti.beans.User;
 import it.polimi.tiw.progetti.dao.AppelloDAO;
 import it.polimi.tiw.progetti.utils.ConnectionHandler;
 
@@ -54,6 +55,7 @@ public class Iscritti extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		User user = (User) request.getSession().getAttribute("user");
 		JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 		IWebExchange webExchange = application.buildExchange(request, response);
 		WebContext ctx = new WebContext(webExchange, request.getLocale());
@@ -73,7 +75,13 @@ public class Iscritti extends HttpServlet {
 			}
 
 			AppelloDAO appelloDAO = new AppelloDAO(connection, appId);
-
+			//se l'appello non è del professore viene mandato errore
+			int docenteCorretto = appelloDAO.cercaIdDocentePerAppello();
+			if (docenteCorretto!=user.getId()) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "L'appello a cui vuoi accedere non è tuo");
+				return;
+			}
+			
 			// carico gli iscritti all'appello
 
 			List<InfoIscritti> iscritti = appelloDAO.cercaAppelli(orderBy, orderDirection);

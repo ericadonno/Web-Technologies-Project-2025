@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 
 import org.thymeleaf.TemplateEngine;
@@ -19,6 +20,8 @@ import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.progetti.beans.InfoStudenteAppello;
+import it.polimi.tiw.progetti.beans.User;
+import it.polimi.tiw.progetti.dao.AppelloDAO;
 import it.polimi.tiw.progetti.dao.StudenteDAO;
 import it.polimi.tiw.progetti.utils.ConnectionHandler;
 
@@ -54,7 +57,7 @@ public class ModificaStudente extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// User user = (User) request.getSession().getAttribute("user");
+		User user = (User) request.getSession().getAttribute("user");
 		JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(getServletContext());
 		IWebExchange webExchange = application.buildExchange(request, response);
 		WebContext ctx = new WebContext(webExchange, request.getLocale());
@@ -63,11 +66,22 @@ public class ModificaStudente extends HttpServlet {
 			int studenteid = Integer.parseInt(studenteIdParam);
 			String appelloIdParam = request.getParameter("appId");
 			int appid = Integer.parseInt(appelloIdParam);
-			StudenteDAO studenteDAO = new StudenteDAO(connection, studenteid);
 
 			// mostro le informazioni del singolo studente selezionato dopo aver premuto
 			// MODIFICA
-
+			AppelloDAO appelloDAO = new AppelloDAO(connection, appid);
+			int docenteCorretto = appelloDAO.cercaIdDocentePerAppello();
+			if (docenteCorretto!=user.getId()) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "L'appello a cui vuoi accedere non è tuo");
+				return;
+			}
+			
+			StudenteDAO studenteDAO = new StudenteDAO(connection, studenteid);
+			List<Integer> studenti = studenteDAO.cercaIdStudentiPerAppello(appid);
+			if (!studenti.contains(studenteid)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Lo studente a cui vuoi accedere non ha dato questo esame");
+				return;
+			}
 			InfoStudenteAppello infostud = studenteDAO.cercoInfoStudentePubblicatoperAppello(appid);
 			ctx.setVariable("iscritto", infostud);
 		} catch (SQLException e) {

@@ -71,6 +71,12 @@ public class DocenteHomePage extends HttpServlet {
 			if (corsoIdParam != null) {
 				int corsoId = Integer.parseInt(corsoIdParam);
 				CorsoDAO corsoDAO = new CorsoDAO(connection, corsoId);
+				//controllo che il docente del corso sia il user loggato
+				int docenteCorretto = corsoDAO.cercaIdDocentePerCorso();
+				if (docenteCorretto!=user.getId()) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il corso a cui vuoi accedere non è tuo");
+					return;
+				}
 				List<Appello> appelli = corsoDAO.cercaAppelli();
 				ctx.setVariable("appelli", appelli);
 			}

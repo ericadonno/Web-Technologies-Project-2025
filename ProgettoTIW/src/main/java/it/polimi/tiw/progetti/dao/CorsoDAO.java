@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.polimi.tiw.progetti.beans.Appello;
-
+import it.polimi.tiw.progetti.beans.InfoVerbaleDocente;
 
 public class CorsoDAO {
 	private Connection con;
@@ -18,14 +18,11 @@ public class CorsoDAO {
 		this.con = connection;
 		this.idcorso = idcorso;
 	}
-		
-	//cerca appelli di un certo corso
+
+	// cerca appelli di un certo corso
 	public List<Appello> cercaAppelli() throws SQLException {
 		List<Appello> appelli = new ArrayList<Appello>();
-		String query = "SELECT idapp, data "
-				+ "FROM appello "
-				+ "WHERE idcorso = ? "
-				+ "ORDER BY data DESC;";
+		String query = "SELECT idapp, data " + "FROM appello " + "WHERE idcorso = ? " + "ORDER BY data DESC;";
 		try (PreparedStatement pstatement = con.prepareStatement(query);) {
 			pstatement.setInt(1, this.idcorso);
 			try (ResultSet result = pstatement.executeQuery();) {
@@ -39,6 +36,23 @@ public class CorsoDAO {
 			}
 		}
 		return appelli;
+	}
+
+	//cerca iddocente per un corso
+	public int cercaIdDocentePerCorso()throws SQLException {
+		String query = "SELECT iddocente "
+				+ "FROM corso "
+				+ "WHERE idcorso = ?;";
+		try (PreparedStatement pstatement = con.prepareStatement(query);) {
+			pstatement.setInt(1, this.idcorso);
+			try (ResultSet result = pstatement.executeQuery()) {
+	            if (result.next()) {
+	                return result.getInt("iddocente");
+	            } else {
+	                throw new SQLException("No docente found for idcorso = " + this.idcorso);
+	            }
+	        }
+		}
 	}
 
 	
