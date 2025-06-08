@@ -20,7 +20,9 @@ import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.progetti.beans.InfoIscritti;
+import it.polimi.tiw.progetti.beans.User;
 import it.polimi.tiw.progetti.beans.Verbale;
+import it.polimi.tiw.progetti.dao.AppelloDAO;
 import it.polimi.tiw.progetti.dao.VerbaleDAO;
 import it.polimi.tiw.progetti.utils.ConnectionHandler;
 
@@ -49,12 +51,13 @@ public class PaginaVerbale extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		doPost(request,response);
+		doPost(request, response);
 
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		User user = (User) request.getSession().getAttribute("user");
 		VerbaleDAO verbaleDAO;
 		List<Integer> studentidaAggiornare;
 		int appid;
@@ -63,6 +66,15 @@ public class PaginaVerbale extends HttpServlet {
 		try {
 			String appelloIdParam = request.getParameter("appId");
 			appid = Integer.parseInt(appelloIdParam);
+
+			AppelloDAO appelloDAO = new AppelloDAO(connection, appid);
+			// se l'appello non è del professore viene mandato errore
+			int docenteCorretto = appelloDAO.cercaIdDocentePerAppello();
+			if (docenteCorretto != user.getId()) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il verbale a cui vuoi accedere non è tuo");
+				return;
+			}
+
 			verbaleDAO = new VerbaleDAO(connection, appid);
 
 			// lista formata dagli id degli studenti che hanno lo stato di valutazione a
@@ -88,8 +100,7 @@ public class PaginaVerbale extends HttpServlet {
 
 			verbale = verbaleDAO.idVerb();
 		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"Errore nel recuperare il verbale creato.");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Errore nel recuperare il verbale creato.");
 			return;
 		} catch (NumberFormatException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro appid deve essere un intero valido");
