@@ -49,6 +49,7 @@ public class PaginaVerbale extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		doPost(request,response);
 
 	}
 
@@ -57,6 +58,8 @@ public class PaginaVerbale extends HttpServlet {
 		VerbaleDAO verbaleDAO;
 		List<Integer> studentidaAggiornare;
 		int appid;
+		Verbale verbale = new Verbale();
+		List<InfoIscritti> studentiaggiornati = new ArrayList<InfoIscritti>();
 		try {
 			String appelloIdParam = request.getParameter("appId");
 			appid = Integer.parseInt(appelloIdParam);
@@ -66,53 +69,30 @@ public class PaginaVerbale extends HttpServlet {
 			// pubblicato o rifiutato
 
 			studentidaAggiornare = verbaleDAO.cercaIdStudentiPubbORif();
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"Errore nel cercare gli ID degli studenti da aggiornare.");
-			return;
-		} catch (NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro appid deve essere un intero valido");
-			return;
-		}
 
-		// aggiorno nel database lo stato degli studenti con stato di valutazione
-		// mettendolo a verbalizzato
-		// nel caso in cui uno studente abbia rifiutato, viene posto a rimandato
-		try {
+			// aggiorno nel database lo stato degli studenti con stato di valutazione
+			// mettendolo a verbalizzato
+			// nel caso in cui uno studente abbia rifiutato, viene posto a rimandato
+
 			verbaleDAO.aggiornaverbalizzato();
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"Errore durante l'aggiornamento dei dati come verbalizzati.");
-			return;
-		}
+			// carico le informazioni complete degli studenti di cui avevo preso l'id in
+			// studentidaaggiornare
 
-		List<InfoIscritti> studentiaggiornati = new ArrayList<InfoIscritti>();
-
-		// carico le informazioni complete degli studenti di cui avevo preso l'id in
-		// studentidaaggiornare
-		try {
 			studentiaggiornati = verbaleDAO.infoStudentiAggiornati(appid, studentidaAggiornare);
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"Errore nel recuperare le informazioni degli studenti aggiornati.");
-			return;
-		}
 
-		// creo il verbale
-		try {
+			// creo il verbale
+
 			verbaleDAO.creaverbale();
-		} catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore nella creazione del verbale.");
-			return;
-		}
-		Verbale verbale = new Verbale();
 
-		// carica le informazioni relative all'ultimo verbale creato
-		try {
+			// carica le informazioni relative all'ultimo verbale creato
+
 			verbale = verbaleDAO.idVerb();
 		} catch (SQLException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"Errore nel recuperare il verbale creato.");
+			return;
+		} catch (NumberFormatException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Il parametro appid deve essere un intero valido");
 			return;
 		}
 
